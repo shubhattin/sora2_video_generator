@@ -8,6 +8,7 @@ import appCss from "../styles.css?url";
 import { ThemeProvider } from "~/components/theme-provider";
 import Header from "@/components/Header";
 import { queryClient } from "~/lib/queryClient";
+import TRPCProvider from "~/api/TRPCProvider";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -44,11 +45,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="antialiased overflow-y-scroll sm:px-2 lg:px-3 xl:px-4 2xl:px-4">
         <QueryClientProvider client={queryClient}>
           <Header />
-          <div className="container mx-auto mb-4">
-            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-              {children}
-            </ThemeProvider>
-          </div>
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <TRPCProvider>
+              <div className="container mx-auto mb-4">{children}</div>
+            </TRPCProvider>
+          </ThemeProvider>
           <TanStackDevtools
             config={{
               position: "bottom-right",
