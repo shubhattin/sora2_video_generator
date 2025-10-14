@@ -7,3 +7,7 @@ count.txt
 .env
 .nitro
 .tanstack
+
+
+a.ts
+**/a.ts
