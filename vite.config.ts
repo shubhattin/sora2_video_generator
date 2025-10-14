@@ -19,7 +19,11 @@ const config = defineConfig({
         enabled: true
       }
     }),
-    viteReact()
+    viteReact({
+      babel: {
+        plugins: ['babel-plugin-react-compiler'],
+      }
+    })
   ],
   resolve: {
     alias: {
