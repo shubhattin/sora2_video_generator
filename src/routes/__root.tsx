@@ -9,6 +9,7 @@ import { ThemeProvider } from "~/components/theme-provider";
 import Header from "@/components/Header";
 import { queryClient } from "~/lib/queryClient";
 import TRPCProvider from "~/api/TRPCProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -47,6 +48,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <Header />
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <TRPCProvider>
+              <Toaster richColors={true} />
               <div className="container mx-auto mb-4">{children}</div>
             </TRPCProvider>
           </ThemeProvider>
