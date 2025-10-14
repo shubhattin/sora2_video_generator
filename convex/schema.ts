@@ -1,5 +1,5 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema, defineTable } from 'convex/server';
+import { v } from 'convex/values';
 
 export default defineSchema({
   video_jobs: defineTable({
@@ -9,10 +9,10 @@ export default defineSchema({
     duration_s: v.number(),
     resolution: v.string(),
     status: v.union(
-      v.literal("queued"),
-      v.literal("in_progress"),
-      v.literal("completed"),
-      v.literal("failed")
+      v.literal('queued'),
+      v.literal('in_progress'),
+      v.literal('completed'),
+      v.literal('failed')
     ),
     progress: v.optional(v.number()),
     created_at: v.number(),
@@ -21,8 +21,8 @@ export default defineSchema({
     error: v.optional(
       v.object({
         message: v.string(),
-        code: v.optional(v.string()),
+        code: v.optional(v.string())
       })
-    ),
-  }).index("job_id", ["job_id"]),
+    )
+  }).index('job_id', ['job_id'])
 });

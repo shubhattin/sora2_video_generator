@@ -1,41 +1,43 @@
-import type { Context } from "./context";
-import { TRPCError, initTRPC } from "@trpc/server";
-import transformer from "./transformer";
+import type { Context } from './context';
+import { TRPCError, initTRPC } from '@trpc/server';
+import transformer from './transformer';
 
 export const t = initTRPC.context<Context>().create({
-  transformer,
+  transformer
 });
 
 export const publicProcedure = t.procedure;
 
-export const protectedUnverifiedProcedure = publicProcedure.use(
-  async function isAuthed({ next, ctx: { user } }) {
-    if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
-    return next({
-      ctx: { user },
-    });
-  }
-);
-
-export const protectedProcedure = publicProcedure.use(async function isAuthed({
+export const protectedUnverifiedProcedure = publicProcedure.use(async function isAuthed({
   next,
-  ctx: { user },
+  ctx: { user }
 }) {
-  if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
+  if (!user) throw new TRPCError({ code: 'UNAUTHORIZED' });
   return next({
-    ctx: { user },
+    ctx: { user }
   });
 });
 
-export const protectedAdminProcedure = protectedProcedure.use(
-  async function isAuthed({ next, ctx: { user } }) {
-    if (user.role !== "admin")
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Not a Admin User",
-      });
-    return next({
-      ctx: { user },
+export const protectedProcedure = publicProcedure.use(async function isAuthed({
+  next,
+  ctx: { user }
+}) {
+  if (!user) throw new TRPCError({ code: 'UNAUTHORIZED' });
+  return next({
+    ctx: { user }
+  });
+});
+
+export const protectedAdminProcedure = protectedProcedure.use(async function isAuthed({
+  next,
+  ctx: { user }
+}) {
+  if (user.role !== 'admin')
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Not a Admin User'
     });
-  }
-);
+  return next({
+    ctx: { user }
+  });
+});

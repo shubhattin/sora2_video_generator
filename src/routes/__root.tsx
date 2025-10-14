@@ -1,40 +1,40 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { TanStackDevtools } from "@tanstack/react-devtools";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
+import { TanStackDevtools } from '@tanstack/react-devtools';
+import { QueryClientProvider } from '@tanstack/react-query';
 
-import appCss from "../styles.css?url";
-import { ThemeProvider } from "~/components/theme-provider";
-import Header from "@/components/Header";
-import { queryClient } from "~/lib/queryClient";
-import TRPCProvider from "~/api/TRPCProvider";
-import { Toaster } from "@/components/ui/sonner";
+import appCss from '../styles.css?url';
+import { ThemeProvider } from '~/components/theme-provider';
+import Header from '@/components/Header';
+import { queryClient } from '~/lib/queryClient';
+import TRPCProvider from '~/api/TRPCProvider';
+import { Toaster } from '@/components/ui/sonner';
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
-        charSet: "utf-8",
+        charSet: 'utf-8'
       },
       {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1'
       },
       {
-        title: "Sora2 Video Generator",
-      },
+        title: 'Sora2 Video Generator'
+      }
     ],
     links: [
       {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+        rel: 'stylesheet',
+        href: appCss
+      }
+    ]
   }),
 
   shellComponent: RootDocument,
-  notFoundComponent: () => <div>Not Found</div>,
+  notFoundComponent: () => <div>Not Found</div>
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -43,7 +43,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="antialiased overflow-y-scroll sm:px-2 lg:px-3 xl:px-4 2xl:px-4">
+      <body className="overflow-y-scroll antialiased sm:px-2 lg:px-3 xl:px-4 2xl:px-4">
         <QueryClientProvider client={queryClient}>
           <Header />
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -54,17 +54,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           </ThemeProvider>
           <TanStackDevtools
             config={{
-              position: "bottom-right",
+              position: 'bottom-right'
             }}
             plugins={[
               {
-                name: "Tanstack Router",
-                render: <TanStackRouterDevtoolsPanel />,
+                name: 'Tanstack Router',
+                render: <TanStackRouterDevtoolsPanel />
               },
               {
-                name: "Tanstack Query",
-                render: <ReactQueryDevtoolsPanel />,
-              },
+                name: 'Tanstack Query',
+                render: <ReactQueryDevtoolsPanel />
+              }
             ]}
           />
         </QueryClientProvider>
