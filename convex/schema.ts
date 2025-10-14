@@ -18,5 +18,11 @@ export default defineSchema({
     created_at: v.number(),
     expires_at: v.optional(v.number()),
     completed_at: v.optional(v.number()),
+    error: v.optional(
+      v.object({
+        message: v.string(),
+        code: v.optional(v.string()),
+      })
+    ),
   }).index("job_id", ["job_id"]),
 });

@@ -17,7 +17,7 @@ export const createVideoJob = mutation({
       v.literal("1280x720"),
       v.literal("720x1280"),
       v.literal("1024x1792"),
-      v.literal("1792x1080")
+      v.literal("1792x1024")
     ),
   },
   handler: async (ctx, args) => {
@@ -49,11 +49,25 @@ export const createVideoJob = mutation({
   },
 });
 
-export const getVideoJob = mutation({
+export const getVideoJob = query({
   args: {
     job_id: v.id("video_jobs"),
+    auth_token: v.string(),
   },
   handler: async (ctx, args) => {
+    await verifyAuthAdminUser(args.auth_token);
+    return await ctx.db.get(args.job_id);
+  },
+});
+
+export const completeVideoJob = mutation({
+  args: {
+    job_id: v.id("video_jobs"),
+    auth_token: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await verifyAuthAdminUser(args.auth_token);
+
     const video_job_record = await ctx.db.get(args.job_id);
     const video_job_id = video_job_record?.job_id;
     if (!video_job_id) {
@@ -77,7 +91,8 @@ export const getVideoJob = mutation({
       status: video.status,
       progress: progress,
       completed_at: video.completed_at ?? undefined,
+      error: video.error ?? undefined,
     });
-    return video;
+    return video.error;
   },
 });
