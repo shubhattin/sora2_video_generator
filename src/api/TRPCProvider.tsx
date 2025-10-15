@@ -4,11 +4,12 @@ import transformer from './transformer';
 import { TRPCProvider } from './client';
 import type { AppRouter } from './trpc_router';
 import { queryClient as queryClientGlobal } from '~/lib/queryClient';
-import { authClient } from '@/lib/auth-client';
+import { authClient, useSession } from '@/lib/auth-client';
 import { z } from 'zod';
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const token_ref = useRef<string | null>(null);
+  const session = useSession();
 
   const [queryClient] = useState(queryClientGlobal);
   const [trpcClient] = useState(() =>
@@ -26,7 +27,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
   );
 
   const renewToken = useCallback(async () => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || session.isPending || !session.data?.user) return;
     authClient.token().then((token) => {
       if (!token.error) {
         token_ref.current = token.data.token;
@@ -41,7 +42,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
         setTimeout(renewToken, time_diff - 1000); // 1 second before expiration new renew token
       }
     });
-  }, [token_ref]);
+  }, [token_ref, session]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
