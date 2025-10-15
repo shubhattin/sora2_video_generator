@@ -1,12 +1,12 @@
 {
-  "projectName": "video_sora2",
+  "projectName": "vite",
   "mode": "file-router",
   "typescript": true,
   "tailwind": true,
-  "packageManager": "npm",
+  "packageManager": "pnpm",
   "addOnOptions": {},
   "git": true,
   "version": 1,
   "framework": "react-cra",
-  "chosenAddOns": []
+  "chosenAddOns": ["nitro", "start"]
 }

@@ -9,17 +9,12 @@ count.txt
 .tanstack
 .output
 .vinxi
-todos.json
 
+# Ignore files for PNPM, NPM and YARN
+pnpm-lock.yaml
 
-
+src/db/migrations
 src/db/scripts/out/
 src/db/scripts/backup/
-tmp
 
-**/a.ts
-**/a.png
-**/a.webp
-**/a.mp3
-**/a.mp4
-**/a.webm
+src/db/migrations
