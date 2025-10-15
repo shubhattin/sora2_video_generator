@@ -52,21 +52,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               <div className="container mx-auto mb-4">{children}</div>
             </TRPCProvider>
           </ThemeProvider>
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right'
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />
-              },
-              {
-                name: 'Tanstack Query',
-                render: <ReactQueryDevtoolsPanel />
-              }
-            ]}
-          />
+          {import.meta.env.DEV && (
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right'
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />
+                },
+                {
+                  name: 'Tanstack Query',
+                  render: <ReactQueryDevtoolsPanel />
+                }
+              ]}
+            />
+          )}
         </QueryClientProvider>
         <Scripts />
       </body>
