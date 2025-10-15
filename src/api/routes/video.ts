@@ -37,13 +37,19 @@ const get_video_job_info_route = protectedAdminProcedure
     return video;
   });
 
-export const videoRouter = t.router({
-  create_video_job: create_video_job_route,
-  get_video_job_info: get_video_job_info_route
+const list_video_jobs_route = protectedAdminProcedure.query(async () => {
+  let videos_page = await openai.videos.list({
+    limit: 100
+  });
+  const now_s = new Date().getTime() / 1000;
+  const videos = videos_page.data.filter(
+    (video) => video.status === 'completed' && video.expires_at && now_s <= video.expires_at
+  );
+  return videos;
 });
 
-// let progress = video.progress ?? 0;
-// while (video.status === 'in_progress' || video.status === 'queued') {
-//   video = await openai.videos.retrieve(video_job_id);
-//   progress = video.progress ?? 0;
-// }
+export const videoRouter = t.router({
+  create_video_job: create_video_job_route,
+  get_video_job_info: get_video_job_info_route,
+  list_video_jobs: list_video_jobs_route
+});
