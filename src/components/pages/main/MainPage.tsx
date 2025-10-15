@@ -126,7 +126,7 @@ const CreateVideoJob = () => {
   const status_video = current_video_job_info_q.data ?? create_video_job_mut.data;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto mt-4 max-w-5xl space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Generate video</CardTitle>
