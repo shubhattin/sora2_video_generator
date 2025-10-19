@@ -86,9 +86,6 @@ importers:
       hono:
         specifier: ^4.10.1
         version: 4.10.1
-      jose:
-        specifier: ^6.1.0
-        version: 6.1.0
       jotai:
         specifier: ^2.15.0
         version: 2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@19.2.2)(react@19.2.0)
