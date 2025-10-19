@@ -4,7 +4,6 @@ import { atomWithStorage } from 'jotai/utils';
 import { useAtom, useSetAtom } from 'jotai/react';
 import { Plus, List, Clock, Download, RotateCw, ChevronsUpDown, Check } from 'lucide-react';
 import type { Video } from 'openai/resources/videos';
-import pretty_ms from 'pretty-ms';
 import { Button } from '@/components/ui/button';
 import { download_video_file_in_browser } from '@/tools/download_file_browser';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,7 +30,8 @@ import {
 } from '@/components/ui/command';
 import { client, QUERY_KEYS } from '~/api/client';
 import { InferRequestType, InferResponseType } from 'hono';
-import { cn } from '@/lib/utils';
+import { cn, formatRemaining } from '@/lib/utils';
+import { useCurrentTime } from '@/lib/useCurrentTime';
 import { atom } from 'jotai';
 import { Input } from '@/components/ui/input';
 
@@ -90,6 +90,7 @@ const CreateVideo = () => {
   const queryClient = useQueryClient();
   const [, setTab] = useAtom(selected_tab_atom);
   const [, setRemixVideoId] = useAtom(remix_video_id_atom);
+  const nowMs = useCurrentTime(1000);
 
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState<(typeof MODELS)[number]>('sora-2');
@@ -349,10 +350,8 @@ const CreateVideo = () => {
                 <div className="flex items-center justify-end gap-2">
                   <span className="px-2 text-xs text-muted-foreground">
                     Expires in :{' '}
-                    {pretty_ms(
-                      status_video.expires_at
-                        ? status_video.expires_at * 1000 - new Date().getTime()
-                        : 0
+                    {formatRemaining(
+                      status_video.expires_at ? status_video.expires_at * 1000 - nowMs : 0
                     )}
                   </span>
                   <Button
@@ -403,6 +402,7 @@ const CreateVideo = () => {
 
 const RemixVideo = () => {
   const queryClient = useQueryClient();
+  const nowMs = useCurrentTime(1000);
   const $post = client.video.remix_video.$post;
   const remix_video_mut = useMutation<
     InferResponseType<typeof $post>,
@@ -621,10 +621,8 @@ const RemixVideo = () => {
                 <div className="flex items-center justify-end gap-2">
                   <span className="px-2 text-xs text-muted-foreground">
                     Expires in :{' '}
-                    {pretty_ms(
-                      status_video.expires_at
-                        ? status_video.expires_at * 1000 - new Date().getTime()
-                        : 0
+                    {formatRemaining(
+                      status_video.expires_at ? status_video.expires_at * 1000 - nowMs : 0
                     )}
                   </span>
                   <Button
@@ -717,6 +715,7 @@ const VideoList = () => {
 const CompletedVideoJobItem = ({ video }: { video: Video }) => {
   const setTab = useSetAtom(selected_tab_atom);
   const setRemixVideoId = useSetAtom(remix_video_id_atom);
+  const nowMs = useCurrentTime(1000);
 
   const onDownloadClick = async () => {
     download_video_file_in_browser(video.id, video.id + '.mp4');
@@ -741,8 +740,7 @@ const CompletedVideoJobItem = ({ video }: { video: Video }) => {
           </span>
 
           <span className="text-xs text-muted-foreground sm:text-sm">
-            Expires in:{' '}
-            {pretty_ms(video.expires_at ? video.expires_at * 1000 - new Date().getTime() : 0)}
+            Expires in: {formatRemaining(video.expires_at ? video.expires_at * 1000 - nowMs : 0)}
           </span>
           <Button className="h-9 px-4" variant={'outline'} onClick={onDownloadClick}>
             <Download className="size-4" />
