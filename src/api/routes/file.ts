@@ -30,6 +30,26 @@ const router = new Hono()
       status: 200,
       headers
     });
-  });
+  })
+  .get(
+    '/get_video_thumbnail',
+    zValidator('query', z.object({ video_job_id: z.string() })),
+    async (c) => {
+      const video_job_id = c.req.valid('query').video_job_id;
+      const thumbnail = await openai.videos.downloadContent(video_job_id, {
+        variant: 'thumbnail'
+      });
+      const body = thumbnail.body;
+      const contentType = 'image/png';
+      const headers = new Headers({
+        'Content-Type': contentType,
+        'Cache-Control': `public, max-age=${5 * 60 * 1000}`
+      });
+      return new Response(body, {
+        status: 200,
+        headers
+      });
+    }
+  );
 
 export const file_router = router;

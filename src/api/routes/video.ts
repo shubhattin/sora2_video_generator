@@ -58,6 +58,17 @@ const router = new Hono()
       (video) => video.status === 'completed' && video.expires_at && now_s <= video.expires_at
     );
     return c.json(videos);
-  });
+  })
+  .post(
+    '/remix_video',
+    zValidator('json', z.object({ video_id: z.string(), prompt: z.string() })),
+    async (c) => {
+      const { video_id, prompt } = c.req.valid('json');
+      const remix = await openai.videos.remix(video_id, {
+        prompt: prompt
+      });
+      return c.json(remix);
+    }
+  );
 
 export const video_router = router;
