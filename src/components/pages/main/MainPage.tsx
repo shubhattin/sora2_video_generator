@@ -33,6 +33,7 @@ import { client, QUERY_KEYS } from '~/api/client';
 import { InferRequestType, InferResponseType } from 'hono';
 import { cn } from '@/lib/utils';
 import { atom } from 'jotai';
+import { Input } from '@/components/ui/input';
 
 const MODELS = ['sora-2', 'sora-2-pro'] as const;
 const DURATION_S = ['4', '8', '12'] as const;
@@ -94,6 +95,20 @@ const CreateVideo = () => {
   const [model, setModel] = useState<(typeof MODELS)[number]>('sora-2');
   const [duration_s, setDuration_s] = useState<(typeof DURATION_S)[number]>('4');
   const [resolution, setResolution] = useState<resolutions_type>('1280x720');
+  const [referenceFile, setReferenceFile] = useState<File | null>(null);
+  const [referencePreviewUrl, setReferencePreviewUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!referenceFile) {
+      if (referencePreviewUrl) URL.revokeObjectURL(referencePreviewUrl);
+      setReferencePreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(referenceFile);
+    setReferencePreviewUrl(url);
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [referenceFile]);
 
   useEffect(() => {
     setResolution(RESOLUTIONS[model][0]);
@@ -105,12 +120,12 @@ const CreateVideo = () => {
   const create_video_job_mut = useMutation<
     InferResponseType<typeof $post>,
     Error,
-    InferRequestType<typeof $post>['json']
+    InferRequestType<typeof $post>['form']
   >({
     mutationFn: (data) => {
       return client.video.create_video_job
         .$post({
-          json: data
+          form: data
         })
         .then((res) => res.json());
     },
@@ -131,7 +146,8 @@ const CreateVideo = () => {
       prompt: prompt,
       model: model,
       duration_s: duration_s,
-      resolution: resolution
+      resolution: resolution,
+      input_reference: referenceFile ? referenceFile : undefined
     });
   };
 
@@ -256,6 +272,43 @@ const CreateVideo = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="reference_image">Reference image (optional)</Label>
+              <Input
+                id="reference_image"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  setReferenceFile(file);
+                }}
+              />
+              {(referenceFile || referencePreviewUrl) && (
+                <div className="flex items-center gap-3">
+                  {referenceFile && (
+                    <img
+                      src={referencePreviewUrl ?? ''}
+                      alt="reference preview"
+                      className="h-16 w-28 rounded border object-cover"
+                    />
+                  )}
+                  <div className="truncate text-xs text-muted-foreground">
+                    {referenceFile?.name}
+                  </div>
+                  {referenceFile && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setReferenceFile(null)}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end pt-2 md:col-span-2">
@@ -577,10 +630,12 @@ const RemixVideo = () => {
                   <Button
                     variant={'outline'}
                     onClick={() => {
-                      setPrompt('');
                       remix_video_mut.reset();
                       if (status_video?.id) {
-                        setVideo_id(status_video.id);
+                        setTimeout(() => {
+                          setVideo_id(status_video.id);
+                          setPrompt('');
+                        }, 100);
                       }
                     }}
                   >

@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { getUserJWTMiddleware, protectedAdminRoute } from '../context';
 import { zValidator } from '@hono/zod-validator';
+import { resizeImageFileCoverExact } from '~/tools/resizeImage.server';
 
 import OpenAI from 'openai';
 import z from 'zod';
@@ -14,21 +15,25 @@ const router = new Hono()
   .post(
     '/create_video_job',
     zValidator(
-      'json',
+      'form',
       z.object({
         prompt: z.string(),
         model: z.enum(['sora-2', 'sora-2-pro']),
         duration_s: z.enum(['4', '8', '12']),
-        resolution: z.enum(['1280x720', '720x1280', '1024x1792', '1792x1024'])
+        resolution: z.enum(['1280x720', '720x1280', '1024x1792', '1792x1024']),
+        input_reference: z.file().optional()
       })
     ),
     async (c) => {
-      const { prompt, model, duration_s, resolution } = c.req.valid('json');
+      const { prompt, model, duration_s, resolution, input_reference } = c.req.valid('form');
       const video = await openai.videos.create({
         model: model,
         prompt: prompt,
         seconds: duration_s,
-        size: resolution
+        size: resolution,
+        input_reference: input_reference
+          ? await resizeImageFileCoverExact(input_reference, resolution)
+          : undefined
       });
 
       return c.json(video);
