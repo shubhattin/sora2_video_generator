@@ -1,7 +1,5 @@
 import { authClient } from '@/lib/auth-client';
 import type { Context, Next } from 'hono';
-import { createRemoteJWKSet } from 'jose';
-import { jwtVerify } from 'jose';
 import get_seesion_from_cookie from '~/lib/get_auth_from_cookie';
 
 type SessionType = typeof authClient.$Infer.Session;
@@ -20,19 +18,6 @@ export const getUserSessionMiddleware = async (c: Context, next: Next) => {
   }
   c.set('user', session.user);
 
-  await next();
-};
-
-const AUTH_URL = import.meta.env.VITE_BETTER_AUTH_URL;
-export const getUserJWTMiddleware = async (c: Context, next: Next) => {
-  const token = c.req.raw.headers.get('Authorization')?.split(' ')[1];
-  if (!token) return c.json({ error: 'Unauthorized' }, 401);
-  const JWKS = createRemoteJWKSet(new URL(`${AUTH_URL}/api/auth/jwks`));
-  const { payload } = await jwtVerify(token, JWKS, {
-    issuer: AUTH_URL, // Should match your JWT issuer, which is the BASE_URL
-    audience: AUTH_URL // Should match your JWT audience, which is the BASE_URL by default
-  });
-  c.set('user', payload as SessionType['user']);
   await next();
 };
 

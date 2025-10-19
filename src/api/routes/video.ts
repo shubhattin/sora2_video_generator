@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { getUserJWTMiddleware, protectedAdminRoute } from '../context';
+import { getUserSessionMiddleware, protectedAdminRoute } from '../context';
 import { zValidator } from '@hono/zod-validator';
 import { resizeImageFileCoverExact } from '~/tools/resizeImage.server';
 
@@ -9,7 +9,7 @@ import z from 'zod';
 const openai = new OpenAI();
 
 const router = new Hono()
-  .use(getUserJWTMiddleware)
+  .use(getUserSessionMiddleware)
   .use(protectedAdminRoute)
   // all routes are protected admin routes
   .post(
