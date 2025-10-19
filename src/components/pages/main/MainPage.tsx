@@ -1,4 +1,3 @@
-import { useTRPC } from '@/api/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { atomWithStorage } from 'jotai/utils';
@@ -21,6 +20,8 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { client, QUERY_KEYS } from '~/api/client';
+import { InferRequestType, InferResponseType } from 'hono';
 
 const MODELS = ['sora-2', 'sora-2-pro'] as const;
 const DURATION_S = ['4', '8', '12'] as const;
@@ -60,7 +61,6 @@ export default function MainPage() {
 }
 
 const CreateVideoJob = () => {
-  const trpc = useTRPC();
   const queryClient = useQueryClient();
 
   const [prompt, setPrompt] = useState('');
@@ -74,28 +74,35 @@ const CreateVideoJob = () => {
 
   const INFO_REFRESH_INTERVAL_MS = 3500;
   const inetervalRef = useRef<NodeJS.Timeout | null>(null);
-  const create_video_job_mut = useMutation(
-    trpc.video.create_video_job.mutationOptions({
-      onSuccess: (data) => {
-        queryClient.invalidateQueries(trpc.video.list_video_jobs.queryFilter());
 
-        if (inetervalRef.current) clearInterval(inetervalRef.current);
-        inetervalRef.current = setInterval(() => {
-          const current_data = create_video_job_mut.data;
-          if (current_data?.status === 'completed' || current_data?.status === 'failed') {
-            queryClient.invalidateQueries(trpc.video.list_video_jobs.queryFilter());
-            if (inetervalRef.current) clearInterval(inetervalRef.current);
-            return;
-          }
-          queryClient.invalidateQueries(
-            trpc.video.get_video_job_info.queryFilter({
-              job_id: data.id
-            })
-          );
-        }, INFO_REFRESH_INTERVAL_MS);
-      }
-    })
-  );
+  const $post = client.video.create_video_job.$post;
+  const create_video_job_mut = useMutation<
+    InferResponseType<typeof $post>,
+    Error,
+    InferRequestType<typeof $post>['json']
+  >({
+    mutationFn: (data) => {
+      return client.video.create_video_job
+        .$post({
+          json: data
+        })
+        .then((res) => res.json());
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.video.video_jobs_list() });
+
+      if (inetervalRef.current) clearInterval(inetervalRef.current);
+      inetervalRef.current = setInterval(() => {
+        const current_data = create_video_job_mut.data;
+        if (current_data?.status === 'completed' || current_data?.status === 'failed') {
+          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.video.video_jobs_list() });
+          if (inetervalRef.current) clearInterval(inetervalRef.current);
+          return;
+        }
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.video.video_job_info(data.id) });
+      }, INFO_REFRESH_INTERVAL_MS);
+    }
+  });
   useEffect(() => {
     return () => {
       if (inetervalRef.current) clearInterval(inetervalRef.current);
@@ -112,16 +119,18 @@ const CreateVideoJob = () => {
     });
   };
 
-  const current_video_job_info_q = useQuery(
-    trpc.video.get_video_job_info.queryOptions(
-      {
-        job_id: create_video_job_mut.data?.id!
-      },
-      {
-        enabled: !!create_video_job_mut.data?.id
-      }
-    )
-  );
+  const current_video_job_info_q = useQuery({
+    queryKey: QUERY_KEYS.video.video_job_info(create_video_job_mut.data?.id!),
+    queryFn: () =>
+      client.video.get_video_job_info
+        .$get({
+          query: {
+            job_id: create_video_job_mut.data?.id!
+          }
+        })
+        .then((res) => res.json()),
+    enabled: !!create_video_job_mut.data?.id
+  });
 
   const status_video = current_video_job_info_q.data ?? create_video_job_mut.data;
 
@@ -213,7 +222,13 @@ const CreateVideoJob = () => {
               <div className="space-y-4">
                 <div className="aspect-video w-full overflow-hidden rounded-lg border shadow-sm">
                   <video
-                    src={`/api/stream_file?video_job_id=${status_video.id}`}
+                    src={
+                      client.file.stream_file.$url({
+                        query: {
+                          video_job_id: status_video.id
+                        }
+                      }).href
+                    }
                     className="h-full w-full"
                     controls
                   />
@@ -264,8 +279,10 @@ const CreateVideoJob = () => {
 };
 
 const VideoJobList = () => {
-  const trpc = useTRPC();
-  const video_job_q = useQuery(trpc.video.list_video_jobs.queryOptions());
+  const video_jobs_q = useQuery({
+    queryKey: QUERY_KEYS.video.video_jobs_list(),
+    queryFn: () => client.video.list_video_jobs.$get().then((res) => res.json())
+  });
   const queryClient = useQueryClient();
 
   return (
@@ -275,23 +292,25 @@ const VideoJobList = () => {
           variant={'outline'}
           size={'sm'}
           onClick={() => {
-            queryClient.invalidateQueries(trpc.video.list_video_jobs.queryFilter());
+            queryClient.invalidateQueries({
+              queryKey: QUERY_KEYS.video.video_jobs_list()
+            });
           }}
-          disabled={video_job_q.isFetching}
+          disabled={video_jobs_q.isFetching}
         >
-          <RotateCw className={`size-4 ${video_job_q.isFetching ? 'animate-spin' : ''}`} />
+          <RotateCw className={`size-4 ${video_jobs_q.isFetching ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
 
-      {video_job_q.isLoading ? (
+      {video_jobs_q.isLoading ? (
         <>
           <LoadingItemSkeleton />
           <LoadingItemSkeleton />
           <LoadingItemSkeleton />
         </>
-      ) : video_job_q.data!.length > 0 ? (
-        video_job_q.data?.map((video) => <CompletedVideoJobItem key={video.id} video={video} />)
+      ) : video_jobs_q.data && video_jobs_q.data.length > 0 ? (
+        video_jobs_q.data.map((video) => <CompletedVideoJobItem key={video.id} video={video} />)
       ) : (
         <div className="text-center text-sm text-muted-foreground">No videos found</div>
       )}
@@ -303,7 +322,11 @@ const CompletedVideoJobItem = ({ video }: { video: Video }) => {
   const onDownloadClick = async () => {
     download_video_file_in_browser(video.id, video.id + '.mp4');
   };
-  const video_url = `/api/stream_file?video_job_id=${video.id}`;
+  const video_url = client.file.stream_file.$url({
+    query: {
+      video_job_id: video.id
+    }
+  }).href;
 
   return (
     <div className="rounded-xl border bg-background/40 p-4 shadow-sm transition-colors hover:bg-background/60 sm:p-5 lg:p-6">

@@ -1,4 +1,4 @@
-import { fetch_get } from './fetch';
+import { client } from '~/api/client';
 
 export const download_file_in_browser = (
   link: string,
@@ -15,8 +15,8 @@ export const download_file_in_browser = (
 };
 
 export const download_video_file_in_browser = async (video_id: string, name: string) => {
-  const req = await fetch_get('/api/stream_file', {
-    params: {
+  const req = await client.file.stream_file.$get({
+    query: {
       video_job_id: video_id
     }
   });

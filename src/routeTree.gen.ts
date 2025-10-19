@@ -10,53 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiStream_fileRouteImport } from './routes/api/stream_file'
-import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc.$'
+import { Route as ApiSplatRouteImport } from './routes/api.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiStream_fileRoute = ApiStream_fileRouteImport.update({
-  id: '/api/stream_file',
-  path: '/api/stream_file',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
-  id: '/api/trpc/$',
-  path: '/api/trpc/$',
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/stream_file': typeof ApiStream_fileRoute
-  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/api/$': typeof ApiSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/stream_file': typeof ApiStream_fileRoute
-  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/api/$': typeof ApiSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/stream_file': typeof ApiStream_fileRoute
-  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/api/$': typeof ApiSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/stream_file' | '/api/trpc/$'
+  fullPaths: '/' | '/api/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/stream_file' | '/api/trpc/$'
-  id: '__root__' | '/' | '/api/stream_file' | '/api/trpc/$'
+  to: '/' | '/api/$'
+  id: '__root__' | '/' | '/api/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiStream_fileRoute: typeof ApiStream_fileRoute
-  ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
+  ApiSplatRoute: typeof ApiSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -68,18 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/stream_file': {
-      id: '/api/stream_file'
-      path: '/api/stream_file'
-      fullPath: '/api/stream_file'
-      preLoaderRoute: typeof ApiStream_fileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/trpc/$': {
-      id: '/api/trpc/$'
-      path: '/api/trpc/$'
-      fullPath: '/api/trpc/$'
-      preLoaderRoute: typeof ApiTrpcSplatRouteImport
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -87,8 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiStream_fileRoute: ApiStream_fileRoute,
-  ApiTrpcSplatRoute: ApiTrpcSplatRoute,
+  ApiSplatRoute: ApiSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

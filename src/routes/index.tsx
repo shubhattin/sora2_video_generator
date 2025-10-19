@@ -1,11 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { signIn, useSession, signOut } from '~/lib/auth-client';
-import { LogIn, LogOut, Video, ShieldAlert } from 'lucide-react';
+import { signIn, useSession } from '~/lib/auth-client';
+import { LogIn, Video, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import MainPage from '@/components/pages/main/MainPage';
 import { cn } from '@/lib/utils';
 

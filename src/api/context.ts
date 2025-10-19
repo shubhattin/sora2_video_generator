@@ -1,34 +1,55 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
-import { z } from 'zod';
+import { authClient } from '@/lib/auth-client';
+import type { Context, Next } from 'hono';
+import { createRemoteJWKSet } from 'jose';
+import { jwtVerify } from 'jose';
+import get_seesion_from_cookie from '~/lib/get_auth_from_cookie';
 
-const AUTH_URL = import.meta.env.VITE_BETTER_AUTH_URL;
-export const createContext = async ({ req }: { req: Request }) => {
-  try {
-    const token = req.headers.get('Authorization')?.split(' ')[1];
-    if (!token)
-      return {
-        user: null
-      };
-    const JWKS = createRemoteJWKSet(new URL(`${AUTH_URL}/api/auth/jwks`));
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: AUTH_URL, // Should match your JWT issuer, which is the BASE_URL
-      audience: AUTH_URL // Should match your JWT audience, which is the BASE_URL by default
-    });
+type SessionType = typeof authClient.$Infer.Session;
 
-    return {
-      user: z
-        .object({
-          id: z.string(),
-          role: z.enum(['admin', 'user'])
-        })
-        .parse(payload)
-    };
-  } catch (error) {
-    console.error('Token validation failed:');
-    return {
-      user: null
-    };
+declare module 'hono' {
+  interface ContextVariableMap {
+    user?: SessionType['user'] | null;
   }
+}
+
+/** This middle is to be used on route groups which cannot access the JWT Header */
+export const getUserSessionMiddleware = async (c: Context, next: Next) => {
+  const session = await get_seesion_from_cookie(c.req.raw.headers.get('cookie') || '');
+  if (!session) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  c.set('user', session.user);
+
+  await next();
 };
 
-export type Context = Awaited<ReturnType<typeof createContext>>;
+const AUTH_URL = import.meta.env.VITE_BETTER_AUTH_URL;
+export const getUserJWTMiddleware = async (c: Context, next: Next) => {
+  const token = c.req.raw.headers.get('Authorization')?.split(' ')[1];
+  if (!token) return c.json({ error: 'Unauthorized' }, 401);
+  const JWKS = createRemoteJWKSet(new URL(`${AUTH_URL}/api/auth/jwks`));
+  const { payload } = await jwtVerify(token, JWKS, {
+    issuer: AUTH_URL, // Should match your JWT issuer, which is the BASE_URL
+    audience: AUTH_URL // Should match your JWT audience, which is the BASE_URL by default
+  });
+  c.set('user', payload as SessionType['user']);
+  await next();
+};
+
+export const protectedRoute = async (c: Context, next: Next) => {
+  const user = c.get('user');
+  if (!user) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  await next();
+};
+
+export const protectedAdminRoute = async (c: Context, next: Next) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  if (user.role !== 'admin') {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  await next();
+};

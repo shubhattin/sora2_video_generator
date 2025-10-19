@@ -8,7 +8,6 @@ import appCss from '../styles.css?url';
 import { ThemeProvider } from '~/components/theme-provider';
 import Header from '@/components/Header';
 import { queryClient } from '~/lib/queryClient';
-import TRPCProvider from '~/api/TRPCProvider';
 import { Toaster } from '@/components/ui/sonner';
 
 export const Route = createRootRoute({
@@ -47,15 +46,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <Header />
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <TRPCProvider>
-              <Toaster richColors={true} />
-              <div className="container mx-auto mb-4">{children}</div>
-            </TRPCProvider>
+            <Toaster richColors={true} />
+            <div className="container mx-auto mb-4">{children}</div>
           </ThemeProvider>
           {import.meta.env.DEV && (
             <TanStackDevtools
               config={{
-                position: 'bottom-right'
+                position: 'bottom-right',
+                openHotkey: undefined
               }}
               plugins={[
                 {
