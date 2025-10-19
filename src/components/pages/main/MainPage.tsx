@@ -90,7 +90,7 @@ const CreateVideo = () => {
   const queryClient = useQueryClient();
   const [, setTab] = useAtom(selected_tab_atom);
   const [, setRemixVideoId] = useAtom(remix_video_id_atom);
-  const nowMs = useCurrentTime(1000);
+  const nowMs = useCurrentTime(2000);
 
   const [prompt, setPrompt] = useState('');
   const [model, setModel] = useState<(typeof MODELS)[number]>('sora-2');
@@ -349,10 +349,7 @@ const CreateVideo = () => {
                 </div>
                 <div className="flex items-center justify-end gap-2">
                   <span className="px-2 text-xs text-muted-foreground">
-                    Expires in :{' '}
-                    {formatRemaining(
-                      status_video.expires_at ? status_video.expires_at * 1000 - nowMs : 0
-                    )}
+                    Expires in : {formatRemaining((status_video.expires_at ?? 0) * 1000 - nowMs)}
                   </span>
                   <Button
                     variant={'outline'}
@@ -402,7 +399,7 @@ const CreateVideo = () => {
 
 const RemixVideo = () => {
   const queryClient = useQueryClient();
-  const nowMs = useCurrentTime(1000);
+  const nowMs = useCurrentTime(2000);
   const $post = client.video.remix_video.$post;
   const remix_video_mut = useMutation<
     InferResponseType<typeof $post>,
@@ -620,10 +617,7 @@ const RemixVideo = () => {
                 </div>
                 <div className="flex items-center justify-end gap-2">
                   <span className="px-2 text-xs text-muted-foreground">
-                    Expires in :{' '}
-                    {formatRemaining(
-                      status_video.expires_at ? status_video.expires_at * 1000 - nowMs : 0
-                    )}
+                    Expires in : {formatRemaining((status_video.expires_at ?? 0) * 1000 - nowMs)}
                   </span>
                   <Button
                     variant={'outline'}
@@ -715,7 +709,7 @@ const VideoList = () => {
 const CompletedVideoJobItem = ({ video }: { video: Video }) => {
   const setTab = useSetAtom(selected_tab_atom);
   const setRemixVideoId = useSetAtom(remix_video_id_atom);
-  const nowMs = useCurrentTime(1000);
+  const nowMs = useCurrentTime(2000);
 
   const onDownloadClick = async () => {
     download_video_file_in_browser(video.id, video.id + '.mp4');
@@ -740,7 +734,7 @@ const CompletedVideoJobItem = ({ video }: { video: Video }) => {
           </span>
 
           <span className="text-xs text-muted-foreground sm:text-sm">
-            Expires in: {formatRemaining(video.expires_at ? video.expires_at * 1000 - nowMs : 0)}
+            Expires in: {formatRemaining((video.expires_at ?? 0) * 1000 - nowMs)}
           </span>
           <Button className="h-9 px-4" variant={'outline'} onClick={onDownloadClick}>
             <Download className="size-4" />
