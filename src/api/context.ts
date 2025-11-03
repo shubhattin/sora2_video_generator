@@ -1,6 +1,6 @@
 import { authClient } from '@/lib/auth-client';
 import type { Context, Next } from 'hono';
-import get_seesion_from_cookie from '~/lib/get_auth_from_cookie';
+import { getUserSession$ } from '~/lib/get_auth_from_cookie';
 
 type SessionType = typeof authClient.$Infer.Session;
 
@@ -12,7 +12,7 @@ declare module 'hono' {
 
 /** This middle is to be used on route groups which cannot access the JWT Header */
 export const getUserSessionMiddleware = async (c: Context, next: Next) => {
-  const session = await get_seesion_from_cookie(c.req.raw.headers.get('cookie') || '');
+  const session = await getUserSession$();
   if (!session) {
     return c.json({ error: 'Unauthorized' }, 401);
   }

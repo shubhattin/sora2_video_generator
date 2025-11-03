@@ -9,20 +9,12 @@ import { ThemeProvider } from '~/components/theme-provider';
 import Header from '@/components/Header';
 import { queryClient } from '~/lib/queryClient';
 import { Toaster } from '@/components/ui/sonner';
-import { createServerFn } from '@tanstack/react-start';
-import get_seesion_from_cookie from '~/lib/get_auth_from_cookie';
+import { getUserSession$ } from '~/lib/get_auth_from_cookie';
 import { AppContextProvider } from '@/components/AppDataContext';
-import { getRequestHeader } from '@tanstack/react-start/server';
-
-const getUserSessionServerFn = createServerFn({ method: 'GET' }).handler(async () => {
-  const cookie = getRequestHeader('cookie');
-  const session = await get_seesion_from_cookie(cookie ?? '');
-  return session;
-});
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
-    const session = await getUserSessionServerFn();
+    const session = await getUserSession$();
     return {
       session
     };
