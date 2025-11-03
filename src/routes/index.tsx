@@ -1,32 +1,31 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { signIn, useSession } from '~/lib/auth-client';
+import { signIn } from '~/lib/auth-client';
 import { LogIn, Video, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MainPage from '@/components/pages/main/MainPage';
 import { cn } from '@/lib/utils';
+import { useContext } from 'react';
+import { AppContext } from '@/components/AppDataContext';
 
 export const Route = createFileRoute('/')({
   component: App
 });
 
 function App() {
-  const session = useSession();
-  if (!session || session.isPending) {
-    return <></>;
-  }
-  const user = session.data?.user;
-  if (!user) {
+  const { user_info } = useContext(AppContext);
+
+  if (!user_info) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-950 dark:via-amber-950/20 dark:to-yellow-950/20">
+      <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-950 dark:via-amber-950/20 dark:to-yellow-950/20">
         <Card className="w-full max-w-md shadow-xl">
           <CardHeader className="space-y-2 text-center">
             <div className="mb-4 flex justify-center">
-              <div className="rounded-full bg-gradient-to-r from-amber-500 to-orange-600 p-4 dark:from-amber-400 dark:to-orange-500">
+              <div className="rounded-full bg-linear-to-r from-amber-500 to-orange-600 p-4 dark:from-amber-400 dark:to-orange-500">
                 <Video className="h-10 w-10 text-white" />
               </div>
             </div>
-            <CardTitle className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-3xl font-bold text-transparent dark:from-amber-500 dark:to-orange-500">
+            <CardTitle className="bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-3xl font-bold text-transparent dark:from-amber-500 dark:to-orange-500">
               Sora 2 Video Generator
             </CardTitle>
             {/* <CardDescription className="text-base">
@@ -41,7 +40,7 @@ function App() {
                   callbackURL: location.href
                 })
               }
-              className="h-12 w-full bg-gradient-to-r from-amber-500 to-orange-600 text-base text-white hover:from-amber-600 hover:to-orange-700 dark:from-amber-400 dark:to-orange-500 dark:hover:from-amber-500 dark:hover:to-orange-600"
+              className="h-12 w-full bg-linear-to-r from-amber-500 to-orange-600 text-base text-white hover:from-amber-600 hover:to-orange-700 dark:from-amber-400 dark:to-orange-500 dark:hover:from-amber-500 dark:hover:to-orange-600"
               size="lg"
             >
               <LogIn className="mr-2" /> Sign in with Google
@@ -54,8 +53,8 @@ function App() {
       </div>
     );
   }
+  const is_user_allowed = user_info.role === 'admin';
 
-  const is_user_allowed = user.role === 'admin';
   return (
     <div
       className={cn(

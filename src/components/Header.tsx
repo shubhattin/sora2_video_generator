@@ -3,15 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { signOut, useSession } from '~/lib/auth-client';
+import { signOut } from '~/lib/auth-client';
+import { useContext } from 'react';
+import { AppContext } from '@/components/AppDataContext';
 
 export default function Header() {
-  const session = useSession();
-  if (!session || session.isPending) {
-    return <></>;
-  }
-  const user = session.data?.user;
-  if (!user) {
+  const { user_info } = useContext(AppContext);
+  if (!user_info) {
     return <></>;
   }
 
@@ -19,11 +17,11 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-amber-200 bg-white/80 shadow-sm backdrop-blur-md dark:border-amber-900/40 dark:bg-gray-950/80">
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 p-2 dark:from-amber-400 dark:to-orange-500">
+          <div className="rounded-lg bg-linear-to-r from-amber-500 to-orange-600 p-2 dark:from-amber-400 dark:to-orange-500">
             <Video className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-2xl font-bold text-transparent dark:from-amber-500 dark:to-orange-500">
+            <h1 className="bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-2xl font-bold text-transparent dark:from-amber-500 dark:to-orange-500">
               Sora 2
             </h1>
             <p className="text-xs text-muted-foreground">AI Video Generation</p>
@@ -36,8 +34,7 @@ export default function Header() {
 }
 
 const UserControlMenu = () => {
-  const session = useSession();
-  const user = session.data?.user!;
+  const user_info = useContext(AppContext).user_info!;
 
   const getInitials = (name: string) => {
     return name
@@ -53,9 +50,9 @@ const UserControlMenu = () => {
       <PopoverTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10 border-2 border-amber-200 dark:border-amber-900/40">
-            <AvatarImage src={user.image ?? undefined} alt={user.name} />
-            <AvatarFallback className="bg-gradient-to-r from-amber-500 to-orange-600 text-white dark:from-amber-500 dark:to-orange-600">
-              {getInitials(user.name || user.email)}
+            <AvatarImage src={user_info.image ?? undefined} alt={user_info.name} />
+            <AvatarFallback className="bg-linear-to-r from-amber-500 to-orange-600 text-white dark:from-amber-500 dark:to-orange-600">
+              {getInitials(user_info.name || user_info.email)}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -64,14 +61,14 @@ const UserControlMenu = () => {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12 border-2 border-amber-200 dark:border-amber-900/40">
-              <AvatarImage src={user.image ?? undefined} alt={user.name} />
-              <AvatarFallback className="bg-gradient-to-r from-amber-500 to-orange-600 text-white dark:from-amber-500 dark:to-orange-600">
-                {getInitials(user.name || user.email)}
+              <AvatarImage src={user_info.image ?? undefined} alt={user_info.name} />
+              <AvatarFallback className="bg-linear-to-r from-amber-500 to-orange-600 text-white dark:from-amber-500 dark:to-orange-600">
+                {getInitials(user_info.name || user_info.email)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-1">
-              <p className="text-sm leading-none font-medium">{user.name}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <p className="text-sm leading-none font-medium">{user_info.name}</p>
+              <p className="text-xs text-muted-foreground">{user_info.email}</p>
             </div>
           </div>
           <Separator />
