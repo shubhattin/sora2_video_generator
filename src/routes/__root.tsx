@@ -23,7 +23,6 @@ const getUserSessionServerFn = createServerFn({ method: 'GET' }).handler(async (
 export const Route = createRootRoute({
   beforeLoad: async () => {
     const session = await getUserSessionServerFn();
-    console.log('session fetched ', !!session, new Date().toISOString());
     return {
       session
     };

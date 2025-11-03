@@ -12,6 +12,7 @@ const get_seesion_from_cookie = async (cookie: string) => {
       throw new Error(`Failed to fetch session: ${res.statusText}`);
     }
     const session = (await res.json()) as typeof authClient.$Infer.Session;
+    // console.log('session', !!session, new Date().toISOString());
     return session;
   } catch (e) {
     return null;
