@@ -9,8 +9,17 @@ import { ThemeProvider } from '~/components/theme-provider';
 import Header from '@/components/Header';
 import { queryClient } from '~/lib/queryClient';
 import { Toaster } from '@/components/ui/sonner';
+import { getUserSession$ } from '~/lib/get_auth_from_cookie';
+import { AppContextProvider } from '@/components/AppDataContext';
 
 export const Route = createRootRoute({
+  beforeLoad: async () => {
+    const session = await getUserSession$();
+    return {
+      session
+    };
+  },
+  ssr: true,
   head: () => ({
     meta: [
       {
@@ -37,6 +46,8 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { session } = Route.useRouteContext();
+
   return (
     <html lang="en" className="dark">
       <head>
@@ -44,11 +55,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="overflow-y-scroll antialiased sm:px-2 lg:px-3 xl:px-4 2xl:px-4">
         <QueryClientProvider client={queryClient}>
-          <Header />
-          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <Toaster richColors={true} />
-            <div className="container mx-auto mb-4">{children}</div>
-          </ThemeProvider>
+          <AppContextProvider initialSession={session}>
+            <Header />
+            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+              <Toaster richColors={true} />
+              <div className="container mx-auto mb-4">{children}</div>
+            </ThemeProvider>
+          </AppContextProvider>
           {import.meta.env.DEV && (
             <TanStackDevtools
               config={{
