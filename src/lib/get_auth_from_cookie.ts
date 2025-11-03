@@ -1,4 +1,4 @@
-import { authClient } from '@/lib/auth-client';
+import type { authClient } from '@/lib/auth-client';
 import { createIsomorphicFn } from '@tanstack/react-start';
 import { getRequestHeader } from '@tanstack/react-start/server';
 
@@ -23,6 +23,7 @@ const get_seesion_from_cookie = async (cookie: string) => {
 
 export const getUserSession$ = createIsomorphicFn()
   .client(async () => {
+    const { authClient } = await import('@/lib/auth-client');
     const session = (await authClient.getSession()).data;
     return session;
   })
