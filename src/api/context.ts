@@ -10,7 +10,7 @@ declare module 'hono' {
   }
 }
 
-/** This middle is to be used on route groups which cannot access the JWT Header */
+/** This middle is to be used on route groups which cannot access the JWT Header/Cookie */
 export const getUserSessionMiddleware = async (c: Context, next: Next) => {
   const session = await getUserSession$();
   if (!session) {
