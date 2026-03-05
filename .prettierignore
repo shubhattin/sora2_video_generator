@@ -18,3 +18,5 @@ src/db/scripts/out/
 src/db/scripts/backup/
 
 src/db/migrations
+
+src/routeTree.gen.ts
