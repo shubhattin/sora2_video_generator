@@ -223,7 +223,11 @@ const CreateVideo = () => {
 
             <div className="space-y-2">
               <Label>Model</Label>
-              <Select value={model} onValueChange={(v) => setModel(v as (typeof MODELS)[number])}>
+              <Select
+                items={MODELS.map((m) => ({ label: m, value: m }))}
+                value={model}
+                onValueChange={(v) => setModel(v as (typeof MODELS)[number])}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select model" />
                 </SelectTrigger>
@@ -240,6 +244,7 @@ const CreateVideo = () => {
             <div className="space-y-2">
               <Label>Duration</Label>
               <Select
+                items={DURATION_S.map((d) => ({ label: `${d} sec`, value: d }))}
                 value={duration_s}
                 onValueChange={(v) => setDuration_s(v as (typeof DURATION_S)[number])}
               >
@@ -259,6 +264,7 @@ const CreateVideo = () => {
             <div className="space-y-2">
               <Label>Size</Label>
               <Select
+                items={RESOLUTIONS[model].map((r) => ({ label: r, value: r }))}
                 value={resolution}
                 onValueChange={(v) => setResolution(v as resolutions_type)}
               >
@@ -491,37 +497,39 @@ const RemixVideo = () => {
             <div className="space-y-2">
               <Label>Select Video</Label>
               <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={open}
-                    className="w-full justify-between"
-                    disabled={videos_list_q.isLoading || (videos_list_q.data?.length ?? 0) === 0}
-                  >
-                    {selectedVideo ? (
-                      <span className="flex items-center gap-2 overflow-hidden">
-                        {/* thumbnail */}
-                        <img
-                          src={
-                            client.file.get_video_thumbnail.$url({
-                              query: { video_job_id: selectedVideo.id }
-                            }).href
-                          }
-                          alt="thumb"
-                          className="h-6 w-10 rounded object-cover"
-                          loading="lazy"
-                        />
-                        <span className="truncate text-left text-sm">{selectedVideo.id}</span>
-                      </span>
-                    ) : videos_list_q.isLoading ? (
-                      'Loading videos...'
-                    ) : (
-                      'Select video...'
-                    )}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="w-full justify-between"
+                      disabled={videos_list_q.isLoading || (videos_list_q.data?.length ?? 0) === 0}
+                    >
+                      {selectedVideo ? (
+                        <span className="flex items-center gap-2 overflow-hidden">
+                          {/* thumbnail */}
+                          <img
+                            src={
+                              client.file.get_video_thumbnail.$url({
+                                query: { video_job_id: selectedVideo.id }
+                              }).href
+                            }
+                            alt="thumb"
+                            className="h-6 w-10 rounded object-cover"
+                            loading="lazy"
+                          />
+                          <span className="truncate text-left text-sm">{selectedVideo.id}</span>
+                        </span>
+                      ) : videos_list_q.isLoading ? (
+                        'Loading videos...'
+                      ) : (
+                        'Select video...'
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  }
+                />
                 <PopoverContent className="w-[420px] p-0">
                   <Command>
                     <CommandInput placeholder="Search videos..." />

@@ -10,6 +10,7 @@ const config = defineConfig({
   plugins: [
     nitroV2Plugin(),
     // this is the plugin that enables path aliases
+    // @ts-ignore
     viteTsConfigPaths({
       projects: ['./tsconfig.json']
     }),

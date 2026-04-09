@@ -47,16 +47,18 @@ const UserControlMenu = () => {
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10 border-2 border-amber-200 dark:border-amber-900/40">
-            <AvatarImage src={user_info.image ?? undefined} alt={user_info.name} />
-            <AvatarFallback className="bg-linear-to-r from-amber-500 to-orange-600 text-white dark:from-amber-500 dark:to-orange-600">
-              {getInitials(user_info.name || user_info.email)}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+            <Avatar className="h-10 w-10 border-2 border-amber-200 dark:border-amber-900/40">
+              <AvatarImage src={user_info.image ?? undefined} alt={user_info.name} />
+              <AvatarFallback className="bg-linear-to-r from-amber-500 to-orange-600 text-white dark:from-amber-500 dark:to-orange-600">
+                {getInitials(user_info.name || user_info.email)}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        }
+      />
       <PopoverContent className="w-64" align="end">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
