@@ -1,37 +1,22 @@
 import { defineConfig } from 'vite';
+import { devtools } from '@tanstack/devtools-vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
+
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import { nitro } from 'nitro/vite';
+
 import viteReact from '@vitejs/plugin-react';
-import viteTsConfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
-import { nitroV2Plugin } from '@tanstack/nitro-v2-vite-plugin';
-import { resolve } from 'path';
 
 const config = defineConfig({
   plugins: [
-    nitroV2Plugin(),
-    // this is the plugin that enables path aliases
-    // @ts-ignore
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json']
-    }),
+    devtools(),
+    tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
-    tanstackStart({
-      // spa: {
-      //   enabled: true
-      // }
-    }),
-    viteReact({
-      babel: {
-        plugins: ['babel-plugin-react-compiler']
-      }
-    })
-  ],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-      '~': resolve(__dirname, './src')
-    }
-  }
+    tanstackStart(),
+    nitro(),
+    viteReact()
+  ]
 });
 
 export default config;
